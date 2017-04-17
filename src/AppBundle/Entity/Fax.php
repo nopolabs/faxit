@@ -5,17 +5,24 @@ namespace AppBundle\Entity;
 
 class Fax
 {
-    protected $number;
+    /**
+     * @Assert\NotBlank()
+     */
+    protected $numbers;
+
+    /**
+     * @Assert\NotBlank()
+     */
     protected $text;
 
-    public function getNumber() : string
+    public function getNumbers() : array
     {
-        return $this->number;
+        return $this->numbers;
     }
 
-    public function setNumber(string $number)
+    public function setNumbers(array $numbers)
     {
-        $this->number = $number;
+        $this->numbers = $numbers;
     }
 
     public function getText() : string
