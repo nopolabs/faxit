@@ -2,16 +2,17 @@
 
 namespace AppBundle\Entity;
 
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class Fax
 {
     /**
-     * @Assert\NotBlank()
+     * @NotBlank()
      */
     protected $numbers;
 
     /**
-     * @Assert\NotBlank()
+     * @NotBlank()
      */
     protected $text;
 

@@ -8,7 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 class FaxController extends Controller
@@ -36,7 +35,10 @@ class FaxController extends Controller
             ->add('save', SubmitType::class, array('label' => 'Send Fax'))
             ->getForm();
 
+        $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Fax $fax */
             $fax = $form->getData();
 
             // ... perform some action, such as saving the task to the database
@@ -45,12 +47,12 @@ class FaxController extends Controller
             // $em->persist($fax);
             // $em->flush();
 
-            return $this->render('fax/index.html.twig', array(
-                'form' => $form->createView(),
+            return $this->render('fax/template.html.twig', array(
+                'text' => $fax->getText(),
             ));
         }
 
-        return $this->render('fax/index.html.twig', array(
+        return $this->render('fax/form.html.twig', array(
             'form' => $form->createView(),
         ));
     }
