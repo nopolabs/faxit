@@ -2,3 +2,8 @@ parameters:
     twilio_sid: 'get sid from twilio'
     twilio_token: 'get token from twilio'
     twilio_phone_number: 'get number from twilio'
+
+    fax_choices:
+      'Ron Wyden': '+12022282717'
+      'Jeff Merkley': '+12022283997'
+      'Earl Blumenauer': '+12022258941'
