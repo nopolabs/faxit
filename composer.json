@@ -53,6 +53,9 @@
         ],
         "post-update-cmd": [
             "@symfony-scripts"
+        ],
+        "post-create-project-cmd": [
+            "php -r \"copy('app/config/private.yml.dist', 'app/config/private.yml');\""
         ]
     },
     "config": {
