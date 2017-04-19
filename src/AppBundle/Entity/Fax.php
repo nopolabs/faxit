@@ -9,12 +9,12 @@ class Fax
     /**
      * @NotBlank()
      */
-    protected $numbers;
+    protected $numbers = [];
 
     /**
      * @NotBlank()
      */
-    protected $text;
+    protected $text = '';
 
     public function getNumbers() : array
     {

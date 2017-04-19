@@ -1,3 +1,4 @@
+/app/config/private.yml
 /app/config/parameters.yml
 /build/
 /phpunit.xml

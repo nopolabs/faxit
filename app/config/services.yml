@@ -3,7 +3,12 @@
 parameters:
     #parameter_name: value
 
+
 services:
-    #service_name:
-    #    class: AppBundle\Directory\ClassName
-    #    arguments: ['@another_service_name', 'plain_value', '%parameter_name%']
+    fax_storage:
+        class:     AppBundle\Service\FaxService
+        arguments:
+            - '%fax_dir%'
+            - '%twilio_sid%'
+            - '%twilio_token%'
+            - '%twilio_phone_number%'

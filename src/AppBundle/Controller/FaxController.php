@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Fax;
+use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -22,24 +23,22 @@ class FaxController extends Controller
     public function indexAction(Request $request)
     {
         $fax = new Fax();
-        $fax->setNumbers([]);
-        $fax->setText('fan mail from a flounder');
 
-        $form = $this->createFormBuilder($fax)
-            ->add('numbers', ChoiceType::class, array(
-                'choices' => array(
+        $builder = $this->createFormBuilder($fax);
+        $builder->add('numbers', ChoiceType::class, [
+                'choices' => [
                     'Ron Wyden' => '123',
                     'Jeff Merkley' => '456',
                     'Earl Blumenauer' => '789',
-                ),
+                ],
                 'multiple' => 'true',
                 'expanded' => 'true',
-            ))
-            ->add('text', TextareaType::class)
-            ->add('html', SubmitType::class, array('label' => 'Preview HTML'))
-            ->add('pdf', SubmitType::class, array('label' => 'Preview PDF'))
-            ->add('fax', SubmitType::class, array('label' => 'Send Fax'))
-            ->getForm();
+            ]);
+        $builder->add('text', TextareaType::class);
+        $builder->add('previewHtml', SubmitType::class, ['label' => 'Preview HTML']);
+        $builder->add('previewPdf', SubmitType::class, ['label' => 'Preview PDF']);
+        $builder->add('sendFax', SubmitType::class, ['label' => 'Send Fax']);
+        $form = $builder->getForm();
 
         $form->handleRequest($request);
 
@@ -53,29 +52,39 @@ class FaxController extends Controller
 
             $html = $this->getTwig()->render('fax/template.html.twig', $params);
 
-            if ($form->get('html')->isClicked()) {
+            if ($form->get('previewHtml')->isClicked()) {
                 return new Response($html);
-            } elseif ($form->get('pdf')->isClicked()) {
+            } else {
                 $pdf = $this->htmlToPdf($html);
-                return new Response($pdf, 200, [
-                    'Content-Type'        => 'application/pdf',
-                    'Content-Disposition' => 'attachment; filename="fax.pdf"',
-                ]);
-            } elseif ($form->get('fax')->isClicked()) {
-                $view = 'FAX';
-            };
-
-            return $this->render('fax/template.html.twig', array(
-                'text' => $view . $fax->getText(),
-            ));
+                if ($form->get('previewPdf')->isClicked()) {
+                    return new Response($pdf, 200, [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => 'attachment; filename="fax.pdf"',
+                    ]);
+                } elseif ($form->get('sendFax')->isClicked()) {
+                    $name = $this->getFaxService()->putPdf($pdf);
+                    $this->addFlash('notice', "Your fax was sent! ($name)");
+                };
+            }
         }
 
-        return $this->render('fax/form.html.twig', array(
-            'form' => $form->createView(),
-        ));
+        return $this->render('fax/form.html.twig', ['form' => $form->createView()]);
     }
 
-    public function htmlToPdf($html, Options $options = null)
+    /**
+     * @Route("/fax/{name}", name="fax")
+     */
+    public function faxAction($name)
+    {
+        $pdf = $this->getFaxService()->getPdf($name);
+
+        return new Response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $name),
+        ]);
+    }
+
+    protected function htmlToPdf($html, Options $options = null)
     {
         $dompdf = $this->newDompdf($options);
         $dompdf->loadHtml($html);
@@ -94,6 +103,10 @@ class FaxController extends Controller
         return new Dompdf($options);
     }
 
+    protected function getFaxService() : FaxService
+    {
+        return $this->container->get('fax_service');
+    }
 
     protected function getTwig() : TwigEngine
     {
