@@ -25,15 +25,13 @@ class FaxController extends Controller
         $fax = new Fax();
 
         $builder = $this->createFormBuilder($fax);
-        $builder->add('numbers', ChoiceType::class, [
-                'choices' => [
-                    'Ron Wyden' => '123',
-                    'Jeff Merkley' => '456',
-                    'Earl Blumenauer' => '789',
-                ],
-                'multiple' => 'true',
-                'expanded' => 'true',
-            ]);
+        $builder->add('number', ChoiceType::class, [
+            'choices' => [
+                'Ron Wyden' => '+12022282717',
+                'Jeff Merkley' => '+12022283997',
+                'Earl Blumenauer' => '+12022258941',
+            ],
+        ]);
         $builder->add('text', TextareaType::class);
         $builder->add('previewHtml', SubmitType::class, ['label' => 'Preview HTML']);
         $builder->add('previewPdf', SubmitType::class, ['label' => 'Preview PDF']);
@@ -63,7 +61,9 @@ class FaxController extends Controller
                     ]);
                 } elseif ($form->get('sendFax')->isClicked()) {
                     $name = $this->getFaxService()->putPdf($pdf);
-                    $this->addFlash('notice', "Your fax was sent! ($name)");
+                    $url = $this->generateUrl('pdf', ['name' => $name]);
+                    $sid = $this->getFaxService()->sendFax($url, $fax->getNumber());
+                    $this->addFlash('notice', "Your fax was sent! ($sid)");
                 };
             }
         }
@@ -72,9 +72,9 @@ class FaxController extends Controller
     }
 
     /**
-     * @Route("/fax/{name}", name="fax")
+     * @Route("/pdf/{name}", name="pdf")
      */
-    public function faxAction($name)
+    public function pdfAction($name)
     {
         $pdf = $this->getFaxService()->getPdf($name);
 

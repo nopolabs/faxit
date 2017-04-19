@@ -9,21 +9,21 @@ class Fax
     /**
      * @NotBlank()
      */
-    protected $numbers = [];
+    protected $number = '';
 
     /**
      * @NotBlank()
      */
     protected $text = '';
 
-    public function getNumbers() : array
+    public function getNumber() : string
     {
-        return $this->numbers;
+        return $this->number;
     }
 
-    public function setNumbers(array $numbers)
+    public function setNumber(string $number)
     {
-        $this->numbers = $numbers;
+        $this->number = $number;
     }
 
     public function getText() : string
