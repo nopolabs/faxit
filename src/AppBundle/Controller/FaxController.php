@@ -26,11 +26,8 @@ class FaxController extends Controller
 
         $builder = $this->createFormBuilder($fax);
         $builder->add('number', ChoiceType::class, [
-            'choices' => [
-                'Ron Wyden' => '+12022282717',
-                'Jeff Merkley' => '+12022283997',
-                'Earl Blumenauer' => '+12022258941',
-            ],
+            'placeholder' => 'Choose a recipient',
+            'choices' => $this->getFaxChoices(),
         ]);
         $builder->add('text', TextareaType::class);
         $builder->add('previewHtml', SubmitType::class, ['label' => 'Preview HTML']);
@@ -111,5 +108,10 @@ class FaxController extends Controller
     protected function getTwig() : TwigEngine
     {
         return $this->container->get('templating');
+    }
+
+    private function getFaxChoices() : array
+    {
+        return $this->container->getParameter('fax_choices');
     }
 }
