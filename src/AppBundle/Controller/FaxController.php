@@ -32,7 +32,9 @@ class FaxController extends Controller
                 'expanded' => 'true',
             ))
             ->add('text', TextareaType::class)
-            ->add('save', SubmitType::class, array('label' => 'Send Fax'))
+            ->add('html', SubmitType::class, array('label' => 'Preview HTML'))
+            ->add('pdf', SubmitType::class, array('label' => 'Preview PDF'))
+            ->add('fax', SubmitType::class, array('label' => 'Send Fax'))
             ->getForm();
 
         $form->handleRequest($request);
@@ -41,14 +43,16 @@ class FaxController extends Controller
             /** @var Fax $fax */
             $fax = $form->getData();
 
-            // ... perform some action, such as saving the task to the database
-            // for example, if Task is a Doctrine entity, save it!
-            // $em = $this->getDoctrine()->getManager();
-            // $em->persist($fax);
-            // $em->flush();
+            if ($form->get('html')->isClicked()) {
+                $view = 'HTML: ';
+            } elseif ($form->get('pdf')->isClicked()) {
+                $view = 'PDF: ';
+            } elseif ($form->get('fax')->isClicked()) {
+                $view = 'FAX: ';
+            };
 
             return $this->render('fax/template.html.twig', array(
-                'text' => $fax->getText(),
+                'text' => $view . $fax->getText(),
             ));
         }
 
