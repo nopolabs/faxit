@@ -19,8 +19,9 @@ class FaxController extends Controller
 {
     /**
      * @Route("/", name="homepage")
+     * @throws \InvalidArgumentException
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request): Response
     {
         $fax = new Fax();
 
@@ -49,19 +50,22 @@ class FaxController extends Controller
 
             if ($form->get('previewHtml')->isClicked()) {
                 return new Response($html);
-            } else {
-                $pdf = $this->htmlToPdf($html);
-                if ($form->get('previewPdf')->isClicked()) {
-                    return new Response($pdf, 200, [
-                        'Content-Type' => 'application/pdf',
-                        'Content-Disposition' => 'attachment; filename="fax.pdf"',
-                    ]);
-                } elseif ($form->get('sendFax')->isClicked()) {
-                    $name = $this->getFaxService()->putPdf($pdf);
-                    $url = $this->generateUrl('pdf', ['name' => $name]);
-                    $sid = $this->getFaxService()->sendFax($url, $fax->getNumber());
-                    $this->addFlash('notice', "Your fax was sent! ($sid)");
-                };
+            }
+
+            $pdf = $this->htmlToPdf($html);
+
+            if ($form->get('previewPdf')->isClicked()) {
+                return new Response($pdf, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="fax.pdf"',
+                ]);
+            }
+
+            if ($form->get('sendFax')->isClicked()) {
+                $name = $this->getFaxService()->putPdf($pdf);
+                $url = $this->generateUrl('pdf', ['name' => $name]);
+                $sid = $this->getFaxService()->sendFax($url, $fax->getNumber());
+                $this->addFlash('notice', "Your fax was sent! ($sid)");
             }
         }
 
@@ -70,8 +74,9 @@ class FaxController extends Controller
 
     /**
      * @Route("/pdf/{name}", name="pdf")
+     * @throws \InvalidArgumentException
      */
-    public function pdfAction($name)
+    public function pdfAction($name) : Response
     {
         $pdf = $this->getFaxService()->getPdf($name);
 
