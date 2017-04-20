@@ -63,7 +63,7 @@ class FaxController extends Controller
 
             if ($form->get('sendFax')->isClicked()) {
                 $name = $this->getFaxService()->putPdf($pdf);
-                $url = $this->generateUrl('pdf', ['name' => $name]);
+                $url = $this->generatePdfUrl($name);
                 $sid = $this->getFaxService()->sendFax($url, $fax->getNumber());
                 $this->addFlash('notice', "Your fax was sent! ($sid)");
             }
@@ -118,5 +118,10 @@ class FaxController extends Controller
     private function getFaxChoices() : array
     {
         return $this->container->getParameter('fax_choices');
+    }
+
+    private function generatePdfUrl($name)
+    {
+        return $this->container->getParameter('public_url') . '/pdf/' . $name;
     }
 }
