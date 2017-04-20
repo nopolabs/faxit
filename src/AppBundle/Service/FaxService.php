@@ -25,10 +25,10 @@ class FaxService
         }
     }
 
-    public function putPdf($pdf)
+    public function putPdf($pdf, $prefix = 'fax')
     {
         $now = new DateTime();
-        $name = 'fax-' . $now->format('Y-m-d-H-i-s') . '.pdf';
+        $name = $prefix . '-' . $now->format('Y-m-d-H-i-s') . '.pdf';
         file_put_contents($this->pdfDir . '/' . $name, $pdf);
         return $name;
     }

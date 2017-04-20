@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c59b2ce66ea639ed79a90e4d17b7c1c0",
+    "content-hash": "b5d00e010bd21c018958bec17db875a3",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -2217,16 +2217,16 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "5.7.3",
+            "version": "5.7.3-alpha1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "67e16c2d9deaae5d1cebafc2d07c0e6215c92dfb"
+                "reference": "b1256581c5f882a129f71e99412432dc08123222"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/67e16c2d9deaae5d1cebafc2d07c0e6215c92dfb",
-                "reference": "67e16c2d9deaae5d1cebafc2d07c0e6215c92dfb",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/b1256581c5f882a129f71e99412432dc08123222",
+                "reference": "b1256581c5f882a129f71e99412432dc08123222",
                 "shasum": ""
             },
             "require": {
@@ -2259,7 +2259,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2017-04-12T17:49:25+00:00"
+            "time": "2017-04-12T20:26:59+00:00"
         }
     ],
     "packages-dev": [
@@ -2382,7 +2382,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "twilio/sdk": 15
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

@@ -33,7 +33,7 @@
         "symfony/swiftmailer-bundle": "^2.3.10",
         "symfony/symfony": "3.2.*",
         "twig/twig": "^1.0||^2.0",
-        "twilio/sdk": "^5.7"
+        "twilio/sdk": "5.7.3-alpha1"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

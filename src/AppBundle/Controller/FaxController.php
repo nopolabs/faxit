@@ -6,7 +6,9 @@ use AppBundle\Entity\Fax;
 use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\TwigBundle\TwigEngine;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -73,6 +75,8 @@ class FaxController extends Controller
     }
 
     /**
+     * This serves the pdf content for outgoing faxes.
+     *
      * @Route("/pdf/{name}", name="pdf")
      * @throws \InvalidArgumentException
      */
@@ -84,6 +88,38 @@ class FaxController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => sprintf('attachment; filename="%s"', $name),
         ]);
+    }
+
+    /**
+     * This service the TwiML for incoming faxes.
+     * The inbound twilio phone number needs to be configured with the url for this handler.
+     *
+     * @Route("/incoming}", name="incoming")
+     */
+    public function incomingAction() : Response
+    {
+        $twiml = new SimpleXMLElement("<Response></Response>");
+        $receiveEl = $twiml->addChild('Receive');
+        $receiveEl->addAttribute('action', '/fax/received');
+        $xml = $twiml->asXML();
+
+        return new Response($xml, 200, ['Content-Type' => 'text/xml']);
+    }
+
+    /**
+     * @Route("/receive}", name="receive")
+     */
+    public function receiveAction(Request $request) : Response
+    {
+        $url = $request->request->get("MediaUrl");
+
+        $pdf = file_get_contents($url);
+
+        $name = $this->getFaxService()->putPdf($pdf, 'in');
+
+        $this->getLog()->info("received fax: $name");
+
+        return new Response();
     }
 
     protected function htmlToPdf($html, Options $options = null)
@@ -103,6 +139,11 @@ class FaxController extends Controller
         }
 
         return new Dompdf($options);
+    }
+
+    protected function getLog() : LoggerInterface
+    {
+        return $this->container->get('logger');
     }
 
     protected function getFaxService() : FaxService
