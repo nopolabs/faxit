@@ -100,7 +100,7 @@ class FaxController extends Controller
     {
         $twiml = new SimpleXMLElement("<Response></Response>");
         $receiveEl = $twiml->addChild('Receive');
-        $receiveEl->addAttribute('action', '/fax/received');
+        $receiveEl->addAttribute('action', '/receive');
         $xml = $twiml->asXML();
 
         return new Response($xml, 200, ['Content-Type' => 'text/xml']);
