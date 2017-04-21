@@ -7,8 +7,6 @@ use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\TwigBundle\TwigEngine;
@@ -20,10 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FaxController extends Controller
 {
-    /**
-     * @Route("/", name="homepage")
-     * @throws \InvalidArgumentException
-     */
     public function indexAction(Request $request): Response
     {
         $fax = new Fax();
@@ -77,8 +71,6 @@ class FaxController extends Controller
 
     /**
      * This serves the pdf content for outgoing faxes.
-     *
-     * @Route("/pdf/{name}", name="pdf")
      * @throws \InvalidArgumentException
      */
     public function pdfAction($name) : Response
@@ -94,9 +86,7 @@ class FaxController extends Controller
     /**
      * This service the TwiML for incoming faxes.
      * The inbound twilio phone number needs to be configured with the url for this handler.
-     *
-     * @Route("/incoming", name="incoming")
-     * @Method({"POST"})
+     * @throws \InvalidArgumentException
      */
     public function incomingAction() : Response
     {
@@ -109,8 +99,7 @@ class FaxController extends Controller
     }
 
     /**
-     * @Route("/receive}", name="receive")
-     * @Method({"POST"})
+     * Twilio will post pdf of incoming fax here as specified by TwiML from incomingAction()
      */
     public function receiveAction(Request $request) : Response
     {
