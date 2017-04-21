@@ -23,7 +23,10 @@ $loader = require __DIR__.'/../app/autoload.php';
 Debug::enable();
 
 $kernel = new AppKernel('dev', true);
-$kernel->loadClassCache();
+
+// http://symfony.com/doc/current/debug/debugging.html#disabling-the-bootstrap-file-and-class-caching
+//$kernel->loadClassCache();
+
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
