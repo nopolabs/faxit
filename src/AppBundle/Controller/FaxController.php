@@ -7,6 +7,7 @@ use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -94,7 +95,8 @@ class FaxController extends Controller
      * This service the TwiML for incoming faxes.
      * The inbound twilio phone number needs to be configured with the url for this handler.
      *
-     * @Route("/incoming}", name="incoming")
+     * @Route("/incoming", name="incoming")
+     * @Method({"POST"})
      */
     public function incomingAction() : Response
     {
@@ -108,6 +110,7 @@ class FaxController extends Controller
 
     /**
      * @Route("/receive}", name="receive")
+     * @Method({"POST"})
      */
     public function receiveAction(Request $request) : Response
     {
