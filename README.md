@@ -9,6 +9,8 @@ You will need a [twilio](https://www.twilio.com) account.
 
 Edit app/config/private.yml to set twilio parameters and fax choices.
 
+faxit is built on the Symfony 3 framework.
+
 ## quick start
 
 ```
