@@ -9,3 +9,32 @@ parameters:
       'Ron Wyden': '+12022282717'
       'Jeff Merkley': '+12022283997'
       'Earl Blumenauer': '+12022258941'
+
+    contacts:
+      'Ron Wyden':
+          fax: '+12022282717'
+          tel: '+12022245244'
+          name: 'The Honorable Ron Wyden'
+          addr: '221 Dirksen Senate Office Bldg.'
+          addr2: ''
+          city: 'Washington'
+          state: 'D.C.'
+          zip: '20510'
+      'Jeff Merkley':
+          fax: '+12022283997'
+          tel: '+12022243753'
+          name: 'The Honorable Jeff Merkley'
+          addr: '313 Hart Senate Office Bldg.'
+          addr2: ''
+          city: 'Washington'
+          state: 'D.C.'
+          zip: '20510'
+      'Earl Blumenauer':
+          fax: '+12022258941'
+          tel: '+1202254811'
+          name: 'The Honorable Earl Blumenauer'
+          addr: '1111 Longworth House Office Bldg.'
+          addr2: ''
+          city: 'Washington'
+          state: 'D.C.'
+          zip: '20515'

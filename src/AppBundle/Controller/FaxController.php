@@ -43,7 +43,24 @@ class FaxController extends Controller
             $fax = $form->getData();
 
             $params = [
+                'address' => [
+                    'name' => 'The Honorable Ron Wyden',
+                    'addr' => '221 Dirksen Senate Office Bldg.',
+                    'addr2' => '',
+                    'city' => 'Washington',
+                    'state' => 'D.C.',
+                    'zip' => '20510',
+                ],
+                'salutation' => 'To the Honorable Ron Wyden,',
                 'text' => $fax->getText(),
+                'signature' => 'Best Regards,',
+                'return' => [
+                    'name' => 'Dan Revel',
+                    'addr' => 'General Delivery',
+                    'city' => 'Portland',
+                    'state' => 'OR',
+                    'zip' => '97217',
+                ],
             ];
 
             $html = $this->getTwig()->render('fax/template.html.twig', $params);
@@ -136,7 +153,7 @@ class FaxController extends Controller
     {
         if ($options === null) {
             $options = new Options();
-            $options->set('defaultFont', 'Courier');
+            $options->set('defaultFont', 'Times New Roman');
         }
 
         return new Dompdf($options);
@@ -159,7 +176,14 @@ class FaxController extends Controller
 
     private function getFaxChoices() : array
     {
-        return $this->container->getParameter('fax_choices');
+        $contacts = $this->container->getParameter('contacts');
+
+        $choices = [];
+        foreach ($contacts as $key => $contact) {
+            $choices[$key] = $contact['fax'];
+        }
+
+        return $choices;
     }
 
     private function generatePublicUrl($path)

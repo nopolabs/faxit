@@ -1,15 +1,84 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8" />
-    <title>{% block title %}Fax it!{% endblock %}</title>
-    {% block stylesheets %}
-    <style>
-
+    <title>fax.nopolabs.com</title>
+    <style type="text/css">
+        /*<![CDATA[*/
+        <!--
+        body {
+            text-align: left;
+            white-space: normal;
+            font-family: "Times New Roman", Times, serif;
+            margin:0;
+            padding:0;
+            height: 11in; /*Letter Size Paper*/
+            width: 8.5in; /*Letter Size Paper*/
+            margin-left: 0.5in;
+            margin-top: 0.5in;
+            margin-bottom: 0.5in;
+        }
+        #address {
+            position:relative;
+            font-size: 10pt;
+        }
+        #salutation {
+            position:relative;
+            font-size: 10pt;
+            margin-top: 0.5in;
+            margin-bottom: 0.5in;
+        }
+        #text {
+            position:relative;
+            left:0;
+            width:7.4in;
+            font-size: 11pt;
+            line-height: 1.5;
+            white-space: pre-line;
+            margin:0;
+            padding:0;
+        }
+        #signature {
+            position:relative;
+            left: 3in;
+            font-size: 10pt;
+            margin-top: 0.5in;
+            margin-bottom: 0.5in;
+        }
+        #return {
+            position:relative;
+            left: 3.5in;
+            font-size: 10pt;
+        }
+        -->
+        /*]]>*/
     </style>
-    {% endblock %}
 </head>
 <body>
-{% block body %}{{ text }}{% endblock %}
+<div id="address">
+    <p>{{ address.name }}</p>
+    <p>{{ address.addr }}</p>
+    {% if address.addr2 is defined %}
+        <p>{{ address.addr2 }}</p>
+    {% endif %}
+    <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+</div>
+<div id="salutation">
+    {{ salutation }}
+</div>
+<div id="text">
+    {{ text }}
+</div>
+<div id="signature">
+    {{ signature }}
+</div>
+<div id="return">
+    <p>{{ return.name }}</p>
+    <p>{{ return.addr }}</p>
+    {% if return.addr2 is defined %}
+        <p>{{ return.addr2 }}</p>
+    {% endif %}
+    <p>{{ return.city }}, {{ return.state }} {{ return.zip }}</p>
+</div>
 </body>
 </html>
