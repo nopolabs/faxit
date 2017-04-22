@@ -6,6 +6,7 @@ use AppBundle\Entity\Fax;
 use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,10 +23,12 @@ class FaxController extends Controller
     {
         $fax = new Fax();
 
+        $faxChoices = $this->getFaxChoices();
+
         $builder = $this->createFormBuilder($fax);
         $builder->add('number', ChoiceType::class, [
             'placeholder' => 'Choose a recipient',
-            'choices' => $this->getFaxChoices(),
+            'choices' => $faxChoices,
         ]);
         $builder->add('text', TextareaType::class);
         $builder->add('previewHtml', SubmitType::class, ['label' => 'Preview HTML']);
@@ -60,13 +63,17 @@ class FaxController extends Controller
 
             if ($form->get('sendFax')->isClicked()) {
                 $name = $this->getFaxService()->putPdf($pdf);
-                $url = $this->generatePdfUrl($name);
+                $url = $this->generatePublicUrl('/pdf/' . $name);
                 $sid = $this->getFaxService()->sendFax($url, $fax->getNumber());
                 $this->addFlash('notice', "Your fax was sent! ($sid)");
             }
         }
 
-        return $this->render('fax/form.html.twig', ['form' => $form->createView()]);
+        return $this->render('fax/form.html.twig', [
+            'incoming_number' => $faxChoices['Test'],
+            'incoming_url' => $this->generatePublicUrl('/incoming'),
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -105,13 +112,15 @@ class FaxController extends Controller
     {
         $url = $request->request->get("MediaUrl");
 
-        $pdf = file_get_contents($url);
+        $client = new Client();
+        $response = $client->get($url);
+        $pdf = $response->getBody();
 
         $name = $this->getFaxService()->putPdf($pdf, 'in');
 
         $this->getLog()->info("received fax: $name");
 
-        return new Response();
+        return new Response($url);
     }
 
     protected function htmlToPdf($html, Options $options = null)
@@ -153,8 +162,8 @@ class FaxController extends Controller
         return $this->container->getParameter('fax_choices');
     }
 
-    private function generatePdfUrl($name)
+    private function generatePublicUrl($path)
     {
-        return $this->container->getParameter('public_url') . '/pdf/' . $name;
+        return $this->container->getParameter('public_url') . $path;
     }
 }
