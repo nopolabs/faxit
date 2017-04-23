@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Contact
  *
- * @ORM\Table(name="contact")
+ * @ORM\Table(name="contacts")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ContactRepository")
  */
 class Contact
@@ -342,4 +342,3 @@ class Contact
         return $this->fax;
     }
 }
-
