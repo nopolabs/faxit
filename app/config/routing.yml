@@ -1,23 +1,13 @@
+root:
+    path: /
+    defaults:
+        _controller: FrameworkBundle:Redirect:urlRedirect
+        path: /fax
+        permanent: true
+
+app:
+    resource: "@AppBundle/Resources/config/routing.yml"
+    prefix:   /
+
 fos_user:
     resource: "@FOSUserBundle/Resources/config/routing/all.xml"
-
-fax_home:
-    path: /
-    defaults: { _controller: AppBundle:Fax:index }
-    methods:  [GET, POST]
-
-fax_pdf:
-    path: /pdf/{name}
-    defaults: { _controller: AppBundle:Fax:pdf }
-    methods:  [GET, HEAD]
-
-fax_incoming:
-    path: /incoming
-    defaults: { _controller: AppBundle:Fax:incoming }
-    methods:  [POST]
-
-fax_receive:
-    path: /receive
-    defaults: { _controller: AppBundle:Fax:receive }
-    methods:  [POST]
-    

@@ -7,6 +7,7 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
+        <div><a href="{{ path('fos_user_security_logout') }}">logout</a></div>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

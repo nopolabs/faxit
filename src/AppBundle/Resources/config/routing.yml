@@ -1,0 +1,7 @@
+app_admin_contact:
+    resource: "@AppBundle/Resources/config/routing/contact.yml"
+    prefix:   /admin/contact
+
+app_fax:
+    resource: "@AppBundle/Resources/config/routing/fax.yml"
+    prefix:   /fax

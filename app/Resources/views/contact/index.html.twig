@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Contacts list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Name</th>
+                <th>Addr</th>
+                <th>Addr2</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Zip</th>
+                <th>Salutation</th>
+                <th>Phone</th>
+                <th>Fax</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for contact in contacts %}
+            <tr>
+                <td><a href="{{ path('admin_contact_show', { 'id': contact.id }) }}">{{ contact.id }}</a></td>
+                <td>{{ contact.title }}</td>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.addr }}</td>
+                <td>{{ contact.addr2 }}</td>
+                <td>{{ contact.city }}</td>
+                <td>{{ contact.state }}</td>
+                <td>{{ contact.zip }}</td>
+                <td>{{ contact.salutation }}</td>
+                <td>{{ contact.phone }}</td>
+                <td>{{ contact.fax }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('admin_contact_show', { 'id': contact.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('admin_contact_edit', { 'id': contact.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('admin_contact_new') }}">Create a new contact</a>
+        </li>
+    </ul>
+{% endblock %}
