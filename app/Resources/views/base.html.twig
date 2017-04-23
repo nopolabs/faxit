@@ -7,7 +7,14 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
-        <div><a href="{{ path('fos_user_security_logout') }}">logout</a></div>
+        <div>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_user_index') }}">users</a>
+                <a href="{{ path('admin_contact_index') }}">contacts</a>
+            {% endif %}
+            <a href="{{ path('fax_index') }}">fax</a>
+            <a href="{{ path('fos_user_security_logout') }}">logout</a>
+        </div>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

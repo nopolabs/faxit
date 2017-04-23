@@ -1,4 +1,4 @@
-fax_home:
+fax_index:
     path: /
     defaults: { _controller: AppBundle:Fax:index }
     methods:  [GET, POST]
