@@ -45,7 +45,7 @@ class Contact
     /**
      * @var string
      *
-     * @ORM\Column(name="addr2", type="string", length=255)
+     * @ORM\Column(name="addr2", type="string", length=255, options={"default":""})
      */
     private $addr2;
 
