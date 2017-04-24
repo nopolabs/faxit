@@ -3,17 +3,28 @@
     <head>
         <meta charset="UTF-8" />
         <title>{% block title %}Fax it!{% endblock %}</title>
+        <style>
+            body { background: #F5F5F5; font: 18px/1.5 sans-serif; }
+            h1, h2 { line-height: 1.2; margin: 0 0 .5em; }
+            h1 { font-size: 36px; }
+            h2 { font-size: 21px; margin-bottom: 1em; }
+            p { margin: 0 0 1em 0; }
+            a { color: #0000F0; }
+            a:hover { text-decoration: none; }
+            code { background: #F5F5F5; max-width: 100px; padding: 2px 6px; word-wrap: break-word; }
+            #nav { margin: 1em auto 0; max-width: 800px; width: 95%; }
+        </style>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
-        <div>
+        <div id="nav">
             {% if is_granted('ROLE_ADMIN') %}
                 <a href="{{ path('admin_user_index') }}">users</a>
                 <a href="{{ path('admin_contact_index') }}">contacts</a>
             {% endif %}
             <a href="{{ path('fax_index') }}">fax</a>
-            <a href="{{ path('fos_user_security_logout') }}">logout</a>
+            <a style="float: right;" href="{{ path('fos_user_security_logout') }}">logout</a>
         </div>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}

@@ -10,6 +10,7 @@
             text-align: left;
             white-space: normal;
             font-family: "Times New Roman", Times, serif;
+            font-size: 11pt;
             margin:0;
             padding:0;
             height: 11in; /*Letter Size Paper*/
@@ -20,19 +21,16 @@
         }
         #address {
             position:relative;
-            font-size: 10pt;
         }
         #salutation {
             position:relative;
-            font-size: 10pt;
             margin-top: 0.5in;
-            margin-bottom: 0.5in;
+            margin-bottom: 0.25in;
         }
         #text {
             position:relative;
             left:0;
             width:7.4in;
-            font-size: 11pt;
             line-height: 1.5;
             white-space: pre-line;
             margin:0;
@@ -41,14 +39,12 @@
         #signature {
             position:relative;
             left: 3in;
-            font-size: 10pt;
-            margin-top: 0.5in;
-            margin-bottom: 0.5in;
+            margin-top: 0.25in;
+            margin-bottom: 0.25in;
         }
         #return {
             position:relative;
             left: 3.5in;
-            font-size: 10pt;
         }
         -->
         /*]]>*/
@@ -56,22 +52,16 @@
 </head>
 <body>
 <div id="address">
-    <p>{{ address.name }}</p>
-    <p>{{ address.addr }}</p>
-    {% if address.addr2 is defined %}
-        <p>{{ address.addr2 }}</p>
+    <p>{{ contact.name }}</p>
+    <p>{{ contact.addr }}</p>
+    {% if contact.addr2 %}
+        <p>{{ contact.addr2 }}</p>
     {% endif %}
-    <p>{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+    <p>{{ contact.city }}, {{ contact.state }} {{ contact.zip }}</p>
 </div>
-<div id="salutation">
-    {{ salutation }}
-</div>
-<div id="text">
-    {{ text }}
-</div>
-<div id="signature">
-    {{ signature }}
-</div>
+<div id="salutation">{{ contact.salutation }} {{ contact.name }},</div>
+<div id="text">{{ text }}</div>
+<div id="signature">{{ signature }}</div>
 <div id="return">
     <p>{{ return.name }}</p>
     <p>{{ return.addr }}</p>
