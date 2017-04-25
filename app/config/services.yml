@@ -2,12 +2,19 @@ parameters:
 
 services:
     fax_service:
-        class:     AppBundle\Service\FaxService
+        class:  AppBundle\Service\FaxService
         arguments:
             - '%pdf_dir%'
             - '%twilio_sid%'
             - '%twilio_token%'
             - '%twilio_phone_number%'
+
+    fax_listener:
+        class:  AppBundle\Listener\FaxListener
+        arguments:
+            = '@fax_service'
+        tags:
+            - { name: kernel.event_listener, event: fax.created }
 
     contact_repository:
         class: AppBundle\Repository\ContactRepository

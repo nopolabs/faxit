@@ -3,7 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Contact;
-use AppBundle\Entity\Fax;
+use AppBundle\Event\FaxCreatedEvent;
 use AppBundle\Service\ContactService;
 use AppBundle\Service\FaxService;
 use Dompdf\Dompdf;
@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Bundle\TwigBundle\TwigEngine;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -121,7 +122,9 @@ class FaxController extends Controller
             $fax = $contact->getFax();
             $name = $contact->getName();
             // TODO save a fax record
-            // TODO dispatch a fax ready event
+
+            $event = new FaxCreatedEvent();
+            $this->getEventDispatcher()->dispatch($event);
 
             // TODO move this to a fax ready listener
             $url = $this->generatePublicUrl('/pdf/' . $pdfName);
@@ -232,5 +235,10 @@ class FaxController extends Controller
     protected function getTwig() : TwigEngine
     {
         return $this->container->get('templating');
+    }
+
+    private function getEventDispatcher() : EventDispatcherInterface
+    {
+        return $this->container->get('event_dispatcher');
     }
 }
