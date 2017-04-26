@@ -45,7 +45,6 @@ class FaxController extends Controller
                 return new Response($html);
             }
 
-
             if ($form->get('previewPdf')->isClicked()) {
                 $contact = $this->getContactService()->getContactById($recipients[0]);
                 $pdf = $this->renderFaxPdf($contact, $text);
@@ -85,9 +84,13 @@ class FaxController extends Controller
     /**
      * This accepts status updates for outgoing faxes.
      */
-    public function statusAction($fid) : Response
+    public function statusAction(Request $request, $fid) : Response
     {
-        return new Response('TODO');
+        $status = $request->request->get('FaxStatus');
+
+        $this->getFaxService()->updateStatus($fid, $status);
+
+        return new Response();
     }
 
     /**
@@ -126,26 +129,28 @@ class FaxController extends Controller
     protected function sendFaxes(array $contacts, string $text)
     {
         foreach ($contacts as $contact) {
-            $fax = $this->sendFax($contact, $text);
+            $fax = $this->prepareFax($contact, $text);
+            $fax = $this->sendFax($fax);
+            $this->save($fax);
             $this->addFlash('notice', "Fax sent to {$contact->getName()} ({$fax->getSid()})");
         }
     }
-
-    protected function sendFax(Contact $contact, string $text) : Fax
+    
+    protected function prepareFax(Contact $contact, string $text) : Fax
     {
-        $faxService = $this->getFaxService();
-
         $faxNumber = $contact->getFax();
         $pdf = $this->renderFaxPdf($contact, $text);
-        $fax = $faxService->prepareFax($faxNumber, $pdf);
 
+        return $this->getFaxService()->prepareFax($faxNumber, $pdf);
+    }
+
+    protected function sendFax(Fax $fax) : Fax
+    {
         $pdfUrl = $this->getPdfUrl($fax->getFid());
         $statusUrl = $this->getStatusUrl($fax->getFid());
-        $fax = $faxService->sendFax($pdfUrl, $faxNumber, $statusUrl);
+        $faxNumber = $fax->getFaxNumber();
 
-        $this->save($fax);
-
-        return $fax;
+        return $this->getFaxService()->sendFax($pdfUrl, $faxNumber, $statusUrl);
     }
 
     protected function getPdfUrl($fid)

@@ -23,9 +23,9 @@ class FaxService
 
     public function prepareFax($faxNumber, $pdf) : Fax
     {
-        $key = $this->storageService->create($pdf);
+        $fid = $this->storageService->create($pdf);
 
-        return new Fax($key, $faxNumber);
+        return new Fax($fid, $faxNumber);
     }
 
     public function sendFax(Fax $fax, string $pdfUrl, string $statusUrl) : Fax
@@ -43,5 +43,15 @@ class FaxService
         $fax->setStatus($faxInstance->status);
 
         return $fax;
+    }
+
+    public function getPdf($fid) : string
+    {
+        return $this->storageService->read($fid);
+    }
+
+    public function updateStatus($fid, $x)
+    {
+
     }
 }
