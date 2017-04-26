@@ -3,9 +3,11 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Contact;
-use AppBundle\Event\FaxCreatedEvent;
+use AppBundle\Entity\Fax;
 use AppBundle\Service\ContactService;
 use AppBundle\Service\FaxService;
+use AppBundle\Service\PdfStorageService;
+use Doctrine\ORM\EntityManager;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use GuzzleHttp\Client;
@@ -70,13 +72,13 @@ class FaxController extends Controller
      * This serves the pdf content for outgoing faxes.
      * @throws \InvalidArgumentException
      */
-    public function pdfAction($name) : Response
+    public function pdfAction($key) : Response
     {
-        $pdf = $this->getFaxService()->getPdf($name);
+        $pdf = $this->getPdfStorageService()->read($key);
 
         return new Response($pdf, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $name),
+            'Content-Disposition' => sprintf('attachment; filename="%s.pdf"', $key),
         ]);
     }
 
@@ -106,9 +108,9 @@ class FaxController extends Controller
         $response = $client->get($url);
         $pdf = $response->getBody();
 
-        $name = $this->getFaxService()->putPdf($pdf, 'in');
+        $key = $this->getPdfStorageService()->create($pdf);
 
-        $this->getLog()->info("received fax: $name");
+        $this->getLog()->info("received fax: $key");
 
         return new Response($url);
     }
@@ -116,21 +118,38 @@ class FaxController extends Controller
     protected function generateFaxes(array $contacts, string $text)
     {
         foreach ($contacts as $contact) {
-            /** @var Contact $contact */
-            $pdf = $this->renderFaxPdf($contact, $text);
-            $pdfName = $this->getFaxService()->putPdf($pdf);
-            $fax = $contact->getFax();
+            $pdfUrl = $this->preparePdf($contact, $text);
+            $faxNumber = $contact->getFax();
+
+            $fax = $this->sendFax($pdfUrl, $faxNumber);
+
             $name = $contact->getName();
-            // TODO save a fax record
-
-            $event = new FaxCreatedEvent();
-            $this->getEventDispatcher()->dispatch($event);
-
-            // TODO move this to a fax ready listener
-            $url = $this->generatePublicUrl('/pdf/' . $pdfName);
-            $sid = $this->getFaxService()->sendFax($url, $fax);
-            $this->addFlash('notice', "Fax prepared for $name ($sid)");
+            $this->addFlash('notice', "Fax prepared for $name ({$fax->getSid()})");
         }
+    }
+
+    protected function sendFax(string $pdfUrl, string $faxNumber) : Fax
+    {
+        $fax = $this->getFaxService()->sendFax($pdfUrl, $faxNumber);
+        $fax->setUser($this->getUser());
+        $this->save($fax);
+
+        return $fax;
+    }
+
+    public function save(Fax $fax)
+    {
+        $em = $this->getEntityManager();
+        $em->persist($fax);
+        $em->flush($fax);
+    }
+
+    protected function preparePdf(Contact $contact, string $text)
+    {
+        $pdf = $this->renderFaxPdf($contact, $text);
+        $key = $this->getPdfStorageService()->create($pdf);
+
+        return $this->generatePublicUrl('/pdf/' . $key);
     }
 
     protected function renderFaxHtml(Contact $contact, string $text)
@@ -222,6 +241,11 @@ class FaxController extends Controller
         return $this->container->get('logger');
     }
 
+    protected function getPdfStorageService() : PdfStorageService
+    {
+        return $this->container->get('pdf_storage_service');
+    }
+
     protected function getFaxService() : FaxService
     {
         return $this->container->get('fax_service');
@@ -235,6 +259,11 @@ class FaxController extends Controller
     protected function getTwig() : TwigEngine
     {
         return $this->container->get('templating');
+    }
+
+    protected function getEntityManager() : EntityManager
+    {
+        return $this->container->get('doctrine.orm.default_entity_manager');
     }
 
     private function getEventDispatcher() : EventDispatcherInterface
