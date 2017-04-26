@@ -11,26 +11,37 @@ class FaxService
     private $sid;
     private $token;
     private $phoneNumber;
+    private $storageService;
 
-    public function __construct($sid, $token, $phoneNumber)
+    public function __construct($sid, $token, $phoneNumber, StorageService $storageService)
     {
         $this->sid = $sid;
         $this->token = $token;
         $this->phoneNumber = $phoneNumber;
+        $this->storageService = $storageService;
     }
 
-    public function sendFax($pdfUrl, $faxNumber) : Fax
+    public function prepareFax($faxNumber, $pdf) : Fax
     {
-        // https://www.twilio.com/docs/api/fax/rest/faxes#fax-status-callback
-        $options = ['statusCallback' => ''];
+        $key = $this->storageService->create($pdf);
+
+        return new Fax($key, $faxNumber);
+    }
+
+    public function sendFax(Fax $fax, string $pdfUrl, string $statusUrl) : Fax
+    {
         $client = new Client($this->sid, $this->token);
-        $fax = $client->fax->v1->faxes->create(
+
+        $faxInstance = $client->fax->v1->faxes->create(
             $this->phoneNumber,
-            $faxNumber,
-            $pdfUrl
-            // , $options
+            $fax->getFaxNumber(),
+            $pdfUrl,
+            ['statusCallback' => $statusUrl]
         );
 
-        return new Fax($fax->sid, $fax->status);
+        $fax->setSid($faxInstance->sid);
+        $fax->setStatus($faxInstance->status);
+
+        return $fax;
     }
 }

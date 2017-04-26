@@ -1,8 +1,8 @@
 parameters:
 
 services:
-    pdf_storage_service:
-        class:  AppBundle\Service\PdfStorageService
+    storage_service:
+        class:  AppBundle\Service\StorageService
         arguments:
             - '%pdf_dir%'
 
@@ -12,6 +12,7 @@ services:
             - '%twilio_sid%'
             - '%twilio_token%'
             - '%twilio_phone_number%'
+            - '@storage_service'
 
     contact_repository:
         class: AppBundle\Repository\ContactRepository

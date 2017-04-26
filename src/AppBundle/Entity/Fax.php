@@ -22,12 +22,18 @@ class Fax
     private $id;
 
     /**
-     * @var User
+     * @var string
      *
-     * @OneToOne(targetEntity="User")
-     * @JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\Column(name="fid", type="string", length=40)
      */
-    private $user;
+    private $fid;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="fax_number", type="string", length=40)
+     */
+    private $faxNumber;
 
     /**
      * @var string
@@ -43,30 +49,65 @@ class Fax
      */
     private $status;
 
-    public function __construct(string $sid, string $status)
+    public function __construct(string $fid, string $faxNumber)
     {
-        $this->user = null;
-        $this->sid = $sid;
-        $this->status = $status;
+        $this->fid = $fid;
+        $this->faxNumber = $faxNumber;
     }
 
-    public function setUser(User $user)
+    /**
+     * @return int
+     */
+    public function getId(): int
     {
-        $this->user = $user;
+        return $this->id;
     }
 
-    public function getUser() : User
+    /**
+     * @return string
+     */
+    public function getFid(): string
     {
-        return $this->user;
+        return $this->fid;
     }
 
-    public function getSid() : string
+    /**
+     * @return string
+     */
+    public function getFaxNumber(): string
+    {
+        return $this->faxNumber;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSid(): string
     {
         return $this->sid;
     }
 
-    public function getStatus() : string
+    /**
+     * @param string $sid
+     */
+    public function setSid(string $sid)
+    {
+        $this->sid = $sid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
     {
         return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status)
+    {
+        $this->status = $status;
     }
 }

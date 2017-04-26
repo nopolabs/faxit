@@ -3,17 +3,19 @@
 namespace AppBundle\Service;
 
 
-class PdfStorageService
+class StorageService
 {
     private $dir;
+    private $idService;
 
-    public function __construct(string $dir)
+    public function __construct(string $dir, IdService $idService)
     {
         if (!is_dir($dir)) {
             mkdir($dir);
         }
 
         $this->dir = $dir;
+        $this->idService = $idService;
     }
 
     public function create(string $pdf): string
@@ -42,6 +44,6 @@ class PdfStorageService
 
     protected function generateKey(): string
     {
-        return bin2hex(random_bytes(20));
+        return $this->idService->getId();
     }
 }

@@ -6,7 +6,7 @@ use AppBundle\Entity\Contact;
 use AppBundle\Entity\Fax;
 use AppBundle\Service\ContactService;
 use AppBundle\Service\FaxService;
-use AppBundle\Service\PdfStorageService;
+use AppBundle\Service\StorageService;
 use Doctrine\ORM\EntityManager;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -58,7 +58,7 @@ class FaxController extends Controller
 
             if ($form->get('sendFax')->isClicked()) {
                 $contacts = $this->getContactService()->getContactsById($recipients);
-                $this->generateFaxes($contacts, $text);
+                $this->sendFaxes($contacts, $text);
             }
         }
 
@@ -72,9 +72,9 @@ class FaxController extends Controller
      * This serves the pdf content for outgoing faxes.
      * @throws \InvalidArgumentException
      */
-    public function pdfAction($key) : Response
+    public function pdfAction($fid) : Response
     {
-        $pdf = $this->getPdfStorageService()->read($key);
+        $pdf = $this->getFaxService()->getPdf($fid);
 
         return new Response($pdf, 200, [
             'Content-Type' => 'application/pdf',
@@ -83,7 +83,15 @@ class FaxController extends Controller
     }
 
     /**
-     * This service the TwiML for incoming faxes.
+     * This accepts status updates for outgoing faxes.
+     */
+    public function statusAction($fid) : Response
+    {
+        return new Response('TODO');
+    }
+
+    /**
+     * This serves the TwiML for incoming faxes.
      * The inbound twilio phone number needs to be configured with the url for this handler.
      * @throws \InvalidArgumentException
      */
@@ -115,41 +123,50 @@ class FaxController extends Controller
         return new Response($url);
     }
 
-    protected function generateFaxes(array $contacts, string $text)
+    protected function sendFaxes(array $contacts, string $text)
     {
         foreach ($contacts as $contact) {
-            $pdfUrl = $this->preparePdf($contact, $text);
-            $faxNumber = $contact->getFax();
-
-            $fax = $this->sendFax($pdfUrl, $faxNumber);
-
-            $name = $contact->getName();
-            $this->addFlash('notice', "Fax prepared for $name ({$fax->getSid()})");
+            $fax = $this->sendFax($contact, $text);
+            $this->addFlash('notice', "Fax sent to {$contact->getName()} ({$fax->getSid()})");
         }
     }
 
-    protected function sendFax(string $pdfUrl, string $faxNumber) : Fax
+    protected function sendFax(Contact $contact, string $text) : Fax
     {
-        $fax = $this->getFaxService()->sendFax($pdfUrl, $faxNumber);
-        $fax->setUser($this->getUser());
+        $faxService = $this->getFaxService();
+
+        $faxNumber = $contact->getFax();
+        $pdf = $this->renderFaxPdf($contact, $text);
+        $fax = $faxService->prepareFax($faxNumber, $pdf);
+
+        $pdfUrl = $this->getPdfUrl($fax->getFid());
+        $statusUrl = $this->getStatusUrl($fax->getFid());
+        $fax = $faxService->sendFax($pdfUrl, $faxNumber, $statusUrl);
+
         $this->save($fax);
 
         return $fax;
     }
 
-    public function save(Fax $fax)
+    protected function getPdfUrl($fid)
+    {
+        $path = $this->generateUrl('fax_pdf', ['fid' => $fid]);
+
+        return $this->generatePublicUrl($path);
+    }
+
+    protected function getStatusUrl($fid)
+    {
+        $path = $this->generateUrl('fax_status', ['fid' => $fid]);
+
+        return $this->generatePublicUrl($path);
+    }
+
+    protected function save(Fax $fax)
     {
         $em = $this->getEntityManager();
         $em->persist($fax);
         $em->flush($fax);
-    }
-
-    protected function preparePdf(Contact $contact, string $text)
-    {
-        $pdf = $this->renderFaxPdf($contact, $text);
-        $key = $this->getPdfStorageService()->create($pdf);
-
-        return $this->generatePublicUrl('/pdf/' . $key);
     }
 
     protected function renderFaxHtml(Contact $contact, string $text)
@@ -241,7 +258,7 @@ class FaxController extends Controller
         return $this->container->get('logger');
     }
 
-    protected function getPdfStorageService() : PdfStorageService
+    protected function getPdfStorageService() : StorageService
     {
         return $this->container->get('pdf_storage_service');
     }

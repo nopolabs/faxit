@@ -4,9 +4,14 @@ fax_index:
     methods:  [GET, POST]
 
 fax_pdf:
-    path: /pdf/{name}
+    path: /fax/{fid}/pdf
     defaults: { _controller: AppBundle:Fax:pdf }
     methods:  [GET, HEAD]
+
+fax_status:
+    path: /fax/{fid}/status
+    defaults: { _controller: AppBundle:Fax:status }
+    methods:  [POST]
 
 fax_incoming:
     path: /incoming
