@@ -21,11 +21,14 @@ class FaxService
 
     public function sendFax($pdfUrl, $faxNumber) : Fax
     {
+        // https://www.twilio.com/docs/api/fax/rest/faxes#fax-status-callback
+        $options = ['statusCallback' => ''];
         $client = new Client($this->sid, $this->token);
         $fax = $client->fax->v1->faxes->create(
             $this->phoneNumber,
             $faxNumber,
             $pdfUrl
+            // , $options
         );
 
         return new Fax($fax->sid, $fax->status);
