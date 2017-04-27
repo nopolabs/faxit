@@ -4,6 +4,7 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Entity\Fax;
+use AppBundle\Entity\FaxRepository;
 use Twilio\Rest\Client;
 
 class FaxService
@@ -12,20 +13,31 @@ class FaxService
     private $token;
     private $phoneNumber;
     private $storageService;
+    private $faxRepository;
 
-    public function __construct($sid, $token, $phoneNumber, StorageService $storageService)
+    public function __construct(
+        string $sid,
+        string $token,
+        string $phoneNumber,
+        StorageService $storageService,
+        FaxRepository $faxRepository)
     {
         $this->sid = $sid;
         $this->token = $token;
         $this->phoneNumber = $phoneNumber;
         $this->storageService = $storageService;
+        $this->faxRepository = $faxRepository;
     }
 
     public function prepareFax($faxNumber, $pdf) : Fax
     {
         $fid = $this->storageService->create($pdf);
 
-        return new Fax($fid, $faxNumber);
+        $fax = new Fax($fid, $faxNumber);
+
+        $this->faxRepository->persist($fax);
+
+        return $fax;
     }
 
     public function sendFax(Fax $fax, string $pdfUrl, string $statusUrl) : Fax
@@ -50,8 +62,24 @@ class FaxService
         return $this->storageService->read($fid);
     }
 
-    public function updateStatus($fid, $x)
+    public function updateStatus($fid, $status) : Fax
     {
+        $fax = $this->faxRepository->findOneByFid($fid);
+        $fax->setStatus($status);
 
+        return $fax;
+    }
+
+    public function receiveFax($sid, $status, $faxNumber, $pdf) : Fax
+    {
+        $fid = $this->storageService->create($pdf);
+
+        $fax = new Fax($fid, $faxNumber);
+        $fax->setSid($sid);
+        $fax->setStatus($status);
+
+        $this->faxRepository->persist($fax);
+
+        return $fax;
     }
 }

@@ -6,7 +6,6 @@ use AppBundle\Entity\Contact;
 use AppBundle\Entity\Fax;
 use AppBundle\Service\ContactService;
 use AppBundle\Service\FaxService;
-use AppBundle\Service\StorageService;
 use Doctrine\ORM\EntityManager;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -110,18 +109,22 @@ class FaxController extends Controller
 
     /**
      * Twilio will post pdf of incoming fax here as specified by TwiML from incomingAction()
+     * @see https://www.twilio.com/docs/api/fax/receive#element-attributes
      */
     public function receiveAction(Request $request) : Response
     {
+        $sid = $request->request->get("FaxSid");
+        $status = $request->request->get("FaxStatus");
+        $faxNumber = $request->request->get("From");
         $url = $request->request->get("MediaUrl");
 
         $client = new Client();
         $response = $client->get($url);
         $pdf = $response->getBody();
 
-        $key = $this->getPdfStorageService()->create($pdf);
+        $fax = $this->getFaxService()->receiveFax($sid, $status, $faxNumber, $pdf);
 
-        $this->getLog()->info("received fax: $key");
+        $this->getLog()->info("received fax: {$fax->getFid()}");
 
         return new Response($url);
     }
@@ -135,7 +138,7 @@ class FaxController extends Controller
             $this->addFlash('notice', "Fax sent to {$contact->getName()} ({$fax->getSid()})");
         }
     }
-    
+
     protected function prepareFax(Contact $contact, string $text) : Fax
     {
         $faxNumber = $contact->getFax();
@@ -169,9 +172,7 @@ class FaxController extends Controller
 
     protected function save(Fax $fax)
     {
-        $em = $this->getEntityManager();
-        $em->persist($fax);
-        $em->flush($fax);
+        $this->getEntityManager()->flush($fax);
     }
 
     protected function renderFaxHtml(Contact $contact, string $text)
@@ -261,11 +262,6 @@ class FaxController extends Controller
     protected function getLog() : LoggerInterface
     {
         return $this->container->get('logger');
-    }
-
-    protected function getPdfStorageService() : StorageService
-    {
-        return $this->container->get('pdf_storage_service');
     }
 
     protected function getFaxService() : FaxService
